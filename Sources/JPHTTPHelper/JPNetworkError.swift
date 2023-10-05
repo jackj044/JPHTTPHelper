@@ -10,11 +10,11 @@ import Foundation
 
 public struct JPNetworkError : Error
 {
-    let reason: String?
-    let httpStatusCode: Int?
-    let requestUrl: URL?
-    let requestBody: String?
-    let serverResponse: String?
+    public let reason: String?
+    public let httpStatusCode: Int?
+    public let requestUrl: URL?
+    public let requestBody: String?
+    public let serverResponse: String?
 
     public init(withServerResponse response: Data? = nil, forRequestUrl url: URL, withHttpBody body: Data? = nil, errorMessage message: String, forStatusCode statusCode: Int)
     {
