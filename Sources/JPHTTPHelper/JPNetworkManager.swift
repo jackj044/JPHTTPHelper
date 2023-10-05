@@ -26,7 +26,7 @@ internal protocol NetworkManagerDelegate:NetworkManagerPublicDelegate {
     func request<T:Codable>(request: JPRequest, resultType:T.Type, completionHandler:@escaping (Result<T?, JPNetworkError>) -> Void )
 }
 
-internal class JPNetworkManager:NetworkManagerDelegate {
+public class JPNetworkManager:NetworkManagerDelegate {
   
     public static let shared = JPNetworkManager()
     
@@ -34,7 +34,7 @@ internal class JPNetworkManager:NetworkManagerDelegate {
         
     }
     
-    func makeRequest<T:Codable>(request: JPRequest, resultType: T.Type, completionHandler: @escaping (Result<T?, JPNetworkError>) -> Void){
+    public func makeRequest<T:Codable>(request: JPRequest, resultType: T.Type, completionHandler: @escaping (Result<T?, JPNetworkError>) -> Void){
         self.request(request: request, resultType: resultType, completionHandler: completionHandler)
     }
     
