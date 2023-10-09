@@ -23,3 +23,16 @@ public struct JPRequest:JPRequestHandlerProtocol {
         self.requestBody = requestBody ?? nil
     }
 }
+
+public struct JPMultiPartRequest : JPRequestHandlerProtocol {
+
+    public var url: URL
+    public var httpMethod: JPHttpMethods
+    public var request : Encodable
+
+    public init(withUrl url: URL, forHttpMethod method: JPHttpMethods, requestBody: Encodable) {
+        self.url = url
+        self.httpMethod = method
+        self.request = requestBody
+    }
+}

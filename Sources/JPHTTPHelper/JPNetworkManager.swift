@@ -52,17 +52,18 @@ public class JPNetworkManager:NetworkManagerDelegate {
         
     }
     
+    // MARK: - GET REQUEST
+    
     private func getRequest<T:Codable>(request: JPRequest, resultType: T.Type, completionHandler:@escaping(Result<T?, JPNetworkError>)-> Void){
         
         var request = URLRequest(url: request.url)
         request.httpMethod = JPHttpMethods.get.rawValue
         
-        request.addValue("application/json", forHTTPHeaderField: "content-type")
-        
         self.performRequest(request: request, resultType: T.self, completionHandler: completionHandler)
         
     }
     
+    // MARK: - POST REQUEST
     private func postRequest<T:Codable>(request: JPRequest, resultType: T.Type, completionHandler:@escaping(Result<T?, JPNetworkError>)-> Void){
         
         var request = URLRequest(url: request.url)
@@ -74,6 +75,76 @@ public class JPNetworkManager:NetworkManagerDelegate {
         self.performRequest(request: request, resultType: T.self, completionHandler: completionHandler)
         
     }
+    
+    // MARK: - PUT REQUEST
+    private func putRequest<T:Codable>(request: JPRequest, resultType: T.Type, completionHandler:@escaping(Result<T?, JPNetworkError>)-> Void){
+        
+        var request = URLRequest(url: request.url)
+        request.httpMethod = JPHttpMethods.put.rawValue
+        
+        self.performRequest(request: request, resultType: T.self, completionHandler: completionHandler)
+        
+    }
+    
+    // MARK: - DELETE REQUEST
+    private func deleteRequest<T:Codable>(request: JPRequest, resultType: T.Type, completionHandler:@escaping(Result<T?, JPNetworkError>)-> Void){
+        
+        var request = URLRequest(url: request.url)
+        request.httpMethod = JPHttpMethods.delete.rawValue
+        
+        self.performRequest(request: request, resultType: T.self, completionHandler: completionHandler)
+        
+    }
+    
+    // MARK: - POST MULTIPART REQUEST
+    
+    private func postMultiPartFormData<T:Codable>(request: JPMultiPartRequest, completionHandler:@escaping(Result<T?, JPNetworkError>)-> Void)
+    {
+        let boundary = "-----------------------------\(UUID().uuidString)"
+        let lineBreak = "\r\n"
+        var urlRequest = URLRequest(url: request.url)
+        urlRequest.httpMethod = JPHttpMethods.post.rawValue
+        urlRequest.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var postBody = Data()
+
+        let requestDictionary = request.request.convertToDictionary()
+        if(requestDictionary != nil)
+        {
+            requestDictionary?.forEach({ (key, value) in
+                if(value != nil) {
+                    let strValue = value.map { String(describing: $0) }
+                    if(strValue != nil && strValue?.count != 0) {
+                        postBody.append("--\(boundary + lineBreak)" .data(using: .utf8)!)
+                        postBody.append("Content-Disposition: form-data; name=\"\(key)\" \(lineBreak + lineBreak)" .data(using: .utf8)!)
+                        postBody.append("\(strValue! + lineBreak)".data(using: .utf8)!)
+                    }
+                }
+            })
+
+            // TODO: Next release
+//            if(huRequest.media != nil) {
+//                huRequest.media?.forEach({ (media) in
+//                    postBody.append("--\(boundary + lineBreak)" .data(using: .utf8)!)
+//                    postBody.append("Content-Disposition: form-data; name=\"\(media.parameterName)\"; filename=\"\(media.fileName)\" \(lineBreak + lineBreak)" .data(using: .utf8)!)
+//                    postBody.append("Content-Type: \(media.mimeType + lineBreak + lineBreak)" .data(using: .utf8)!)
+//                    postBody.append(media.data)
+//                    postBody.append(lineBreak .data(using: .utf8)!)
+//                })
+//            }
+            
+            postBody.append("--\(boundary)--\(lineBreak)" .data(using: .utf8)!)
+
+            urlRequest.addValue("\(postBody.count)", forHTTPHeaderField: "Content-Length")
+            urlRequest.httpBody = postBody
+
+            
+            self.performRequest(request: urlRequest, resultType: T.self, completionHandler: completionHandler)
+        }
+    }
+    
+    
+    // MARK: - PERFORM DATA TASK WITH REQUEST
     
     private func performRequest<T: Codable>(request: URLRequest , resultType:T.Type, completionHandler: @escaping (Result<T?,JPNetworkError>) -> Void)  {
         
